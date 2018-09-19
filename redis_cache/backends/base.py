@@ -16,7 +16,7 @@ from redis_cache.connection import pool
 from redis_cache.utils import (
     CacheKey, get_servers, parse_connection_kwargs, import_class
 )
-
+from redis.connection import SSLConnection
 
 from functools import wraps
 
@@ -180,7 +180,13 @@ class BaseRedisCache(BaseCache):
             socket_timeout=self.socket_timeout,
             socket_connect_timeout=self.socket_connect_timeout,
         )
+        if 'unix_socket_path' in kwargs and not kwargs['unix_socket_path']:
+            kwargs.pop('unix_socket_path')
         client = redis.Redis(**kwargs)
+        if 'ssl' in kwargs:
+            kwargs.pop('ssl')
+            kwargs.pop('ssl_cert_reqs')
+            kwargs['connection_class'] = SSLConnection
         kwargs.update(
             parser_class=self.parser_class,
             connection_pool_class=self.connection_pool_class,

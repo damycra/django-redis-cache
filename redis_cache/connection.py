@@ -42,7 +42,9 @@ class CacheConnectionPool(object):
 
         if pool is None:
             connection_class = (
-                unix_socket_path and UnixDomainSocketConnection or Connection
+                unix_socket_path and UnixDomainSocketConnection 
+                or kwargs.get('connection_class')
+                or Connection
             )
 
             kwargs = {
